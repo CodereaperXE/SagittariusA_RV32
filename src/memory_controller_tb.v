@@ -1,0 +1,101 @@
+
+
+// module memory_controller(
+//     output [3:0] address,
+//     input clk,
+//     output [3:0] data
+// );
+
+module memory_controller_module(
+    input [23:0] addr,              // address 
+    input we,                       // write enable
+    input clk,                      // clk
+    input [31:0] data_in,           // data in
+    output wire [31:0] data_out,    // data out
+    output wire op_r,               // output data ready
+    input enable                    // start the r/w
+);
+
+reg [23:0] addr_reg=32'd0;
+reg [3:0] counter=4'd0; //temporary to waste cycles simulating real case
+reg [31:0] mem [0:15];
+reg op_rr=0;
+assign op_r = op_rr;
+//just for the testbench purpose not synthesizable
+initial begin
+    // mem[24'd0]=32'hffc4a303; //load
+    // mem[24'd0]=32'h0064a423; //store
+    // mem[24'h00000c] = 32'h01020304;
+    // mem[24'd0]=32'hfe420ae3; //beq
+    mem[24'd0]=32'h0080016f; //jal
+end
+
+
+assign data_out = (!we && counter==4'd4) ? mem[addr_reg[3:0]] : 32'd0;
+
+always@(posedge clk) begin
+        
+
+    if(counter==4'd4 || enable) begin
+        counter <= 4'd0;
+        op_rr <=0;
+        addr_reg <= addr;
+    end
+
+    else
+        counter <=counter+1;
+
+    if(counter==4'd3) begin
+        if(we)
+            mem[addr_reg[3:0]] <= data_in;
+
+        op_rr <=1;
+    end
+
+end
+endmodule
+
+//testbench
+
+// `timescale 1 ns / 10 ps
+
+// module main;
+//     reg clk=0;
+//     reg [23:0] addr=24'd4;              // address 
+//     reg we=0;                       // write enable
+//     reg [31:0] data_in=32'd0;           // data in
+//     wire [31:0] data_out;    // data out
+//     wire op_r;
+
+//     reg [31:0] storage=32'd0;
+
+//     parameter duration = 10000;
+
+//     memory_controller_module uut(.clk(clk),.addr(addr),.we(we),.data_in(data_in),.data_out(data_out),.op_r(op_r));
+
+//     always@(posedge clk) begin
+//         if(op_r)
+//             storage <= data_out;
+//     end
+
+
+//     always begin
+//         #41.667
+//         clk = ~clk;
+//     end
+
+//     initial begin
+//         $dumpfile("memory_controller_tb.vcd");
+//         $dumpvars(0,main);
+
+//         #(duration)
+
+//         $display("finished");
+//         $finish();
+//     end
+
+// endmodule
+
+
+
+
