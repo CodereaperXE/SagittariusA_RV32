@@ -106,7 +106,8 @@ register_file_module regfile(
     .wd3(regfile_mux_out), 
     .rd1(rs1_out),
     .rd2(rs2_out),
-    .reset(reset)
+    .reset(reset),
+    .clk(clk)
     );
 
 wire [31:0] rf_reg_rs1_out;

@@ -21,13 +21,19 @@ reg [3:0] counter=4'd0; //temporary to waste cycles simulating real case
 reg [31:0] mem [0:15];
 reg op_rr=0;
 assign op_r = op_rr;
+reg state=0;
 //just for the testbench purpose not synthesizable
 initial begin
     // mem[24'd0]=32'hffc4a303; //load
     // mem[24'd0]=32'h0064a423; //store
     // mem[24'h00000c] = 32'h01020304;
     // mem[24'd0]=32'hfe420ae3; //beq
-    mem[24'd0]=32'h0080016f; //jal
+    // mem[24'd0]=32'h0080016f; //jal
+    // mem[24'd0]=32'h004100e7; //jalr
+
+    //addi testbench
+    mem[24'd0]=32'h00c10093;
+    mem[24'd4]=32'h00408113;
 end
 
 
@@ -36,13 +42,14 @@ assign data_out = (!we && counter==4'd4) ? mem[addr_reg[3:0]] : 32'd0;
 always@(posedge clk) begin
         
 
-    if(counter==4'd4 || enable) begin
+    if(enable) begin
         counter <= 4'd0;
         op_rr <=0;
         addr_reg <= addr;
+        state<=1;
     end
 
-    else
+    if(state)
         counter <=counter+1;
 
     if(counter==4'd3) begin
@@ -52,6 +59,11 @@ always@(posedge clk) begin
         op_rr <=1;
     end
 
+    if(counter==4'd4) begin
+        counter<=0;
+        state<=0;
+        op_rr <=0;
+    end
 end
 endmodule
 
