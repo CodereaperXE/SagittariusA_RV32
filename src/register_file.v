@@ -23,13 +23,14 @@ integer i;
 always@(posedge clk or posedge reset) begin
     if(reset) begin
 
-        // for(i=0;i<32;i++) //testbench //sw
-        //     if(i==9)
-        //         registers[i] <= 32'h00008000;
-        //     else if(i==28)
-        //         registers[i] <= 32'd5423;
-        //     else
-        //         registers[i] <= 32'd0;
+        for(i=0;i<32;i++) //testbench //sw
+            if(i==2)
+                registers[i] <= 32'h00008000;
+            else if(i==3)
+                // registers[i] <= 32'haabbccdd;
+                registers[i] <= 32'h00008000;
+            else
+                registers[i] <= 32'd0;
 
         // for(i=0;i<32;i++) //testbench beq
         //     if(i==4)
@@ -45,12 +46,12 @@ always@(posedge clk or posedge reset) begin
         //     else
         //         registers[i] <= 32'd0;
 
-        for(i=0;i<32;i++) //testbench jalr
-            if(i==2)
-                registers[i] <= 32'd10;
+        // for(i=0;i<32;i++) //testbench jalr
+        //     if(i==2)
+        //         registers[i] <= 32'd10;
             
-            else
-                registers[i] <= 32'd0;
+        //     else
+        //         registers[i] <= 32'd0;
 
                 
     end

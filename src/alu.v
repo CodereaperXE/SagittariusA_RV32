@@ -3,17 +3,24 @@
 module alu_module(
     input [31:0] op1,
     input [31:0] op2,
-    input [2:0] alu_sel,
+    input [3:0] alu_sel,
     output [31:0] res,
     output zero
 );
 
-assign zero = (op1 == op2);
+assign zero = ((op1-op2)==32'd0) ? 1 : 0;
+reg sign=0;
 
-
-assign res = (alu_sel==3'b000) ? op1+op2 :
-             (alu_sel==3'b001) ? op1-op2 : 
-             (alu_sel==3'b010) ? op2 : //send only op2
+assign res = (alu_sel==4'b0000) ? op1+op2 :
+             (alu_sel==4'b0001) ? op1-op2 : 
+             (alu_sel==4'b0010) ? op2 : //send only op2 for lui
+             (alu_sel==4'b0011) ? op1 << op2 : //left shift
+             (alu_sel==4'b0100) ? op1 >> op2 : //right shift
+             (alu_sel==4'b0101) ? $signed(op1) >>> op2 : //arithmetic right shift
+             (alu_sel==4'b0110) ? op1 ^ op2 : //xor
+             (alu_sel==4'b0111) ? op1 | op2 : //or
+             (alu_sel==4'b1000) ? op1 & op2 : //and
+             (alu_sel==4'b1001) ? ($signed(op1) < $signed(op2)) ? 1 : 0 : //slti
              32'd0;
 endmodule
 

@@ -15,18 +15,19 @@ module cpu_module(
     input wire ir_reg_enable,
     output wire [31:0] ir_reg_out,
     input wire rf_we,
-    input wire regfile_mux_select,
-    input wire [2:0] imm_src,
+    input wire [1:0] regfile_mux_select,
+    input wire [3:0] imm_src,
     input wire [1:0] opsel1_select,
     input wire [1:0] opsel2_select,
     output wire zero,
-    input wire [2:0] alu_sel,
-    input wire alu_reg_enable,
+    input wire [3:0] alu_sel,
+    input wire alu_reg_enable,   
     input wire alu_reg_mux_select,
     input wire reset,
     input wire mem_enable,
-    input wire old_pc_enable
-
+    input wire old_pc_enable,
+    input wire mem_reg_enable,
+    input wire [1:0] instr_mode
     );
 
 // wire pc_enable;
@@ -56,9 +57,9 @@ register_module #(.n(32)) old_pc(
     );
 
 // wire memsel_mux_select;
-wire [31:0] memset_mux_out;
+wire [31:0] memsel_mux_out;
 //memsel mux
-assign memset_mux_out = (memsel_mux_select==1'b1) ? alu_reg_mux_out : pc_out;
+assign memsel_mux_out = (memsel_mux_select==1'b1) ? alu_reg_mux_out : pc_out;
 
 // wire mem_write_enable;
 wire [31:0] mem_data_out;
@@ -67,13 +68,14 @@ wire [31:0] mem_data_out;
 //wire mem_enable
 //memory module
 memory_controller_module memory(
-    .addr(memset_mux_out[23:0]),
+    .addr(memsel_mux_out[23:0]),
     .we(mem_write_enable),
     .clk(clk),
     .data_in(rf_reg_rs2_out),
     .data_out(mem_data_out),
     .op_r(mem_op_r),
-    .enable(mem_enable)
+    .enable(mem_enable),
+    .instr_mode(instr_mode)
     );
 
 
@@ -88,11 +90,26 @@ register_module ir_reg(
     .reset(reset)
     );
 
+// wire mem_reg_enable;
+wire [31:0] mem_reg_out;
+//register to read data from sb operations
+register_module mem_read_reg(
+    .in(mem_data_out),
+    .clk(clk),
+    .we(mem_reg_enable),
+    .out(mem_reg_out),
+    .reset(reset)
+    );
+
+
 // wire rf_we;
 //regfile mux
 // wire regfile_mux_select;
 wire [31:0] regfile_mux_out;
-assign regfile_mux_out = (regfile_mux_select==1'b1) ? alu_reg_mux_out : mem_data_out;
+assign regfile_mux_out = (regfile_mux_select==2'b00) ? mem_data_out :
+                         (regfile_mux_select==2'b01) ? alu_reg_mux_out :
+                         (regfile_mux_select==2'b10) ? sign_extend_out :
+                         mem_data_out;
 
 wire [31:0] rs1_out;
 wire [31:0] rs2_out; 
@@ -137,7 +154,9 @@ wire [31:0] sign_extend_out;
 sign_extend_module sign_extend(
     .inp(ir_reg_out),
     .imm_src(imm_src),
-    .out(sign_extend_out)
+    .out(sign_extend_out),
+    // .rs2_inp(rf_reg_rs2_out), //not required
+    .mem_inp(mem_reg_out)
     );
 
 //opsel1 mux
@@ -160,7 +179,7 @@ assign opsel2_mux_out = (opsel2_select==2'b10) ? rf_reg_rs2_out:
 
 
 // wire zero;
-// wire [2:0] alu_sel;
+// wire [3:0] alu_sel;
 wire [31:0] alu_out;
 alu_module alu1(
     .op1(opsel1_mux_out),
