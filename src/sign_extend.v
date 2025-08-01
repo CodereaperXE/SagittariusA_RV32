@@ -28,7 +28,7 @@ assign out = (imm_src == 4'b0000) ? {{20{inp[31]}}, inp[31:20]} :
              (imm_src == 4'b0010) ? {{20{inp[31]}}, inp[7], inp[30:25], inp[11:8], 1'b0} :
              (imm_src == 4'b0011) ? {{12{inp[31]}}, inp[19:12], inp[20], inp[30:21], 1'b0} :
              (imm_src == 4'b0100) ? {inp[31:12],12'b0} :
-             (imm_src == 4'b0101) ? {inp} :
+             (imm_src == 4'b0101) ? {20'b0, inp[31:20]} :
              {imm_src == 4'b0110} ? {{24{mem_inp[7]}}, mem_inp[7:0]} :
              {imm_src == 4'b0111} ? {{16{mem_inp[15]}}, mem_inp[15:0]} :
              {imm_src == 4'b1000} ? {24'b0, mem_inp[7:0]} :

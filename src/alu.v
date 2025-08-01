@@ -10,9 +10,8 @@ module alu_module(
 );
 
 assign zero = ((op1-op2)==32'd0) ? 1 : 0;
-assign negative = (op1-op2) [31]; 
+assign negative = ((op1 - op2) & 32'h80000000) ? 1 : 0;
 
-reg sign=0;
 
 assign res = (alu_sel==4'b0000) ? op1+op2 :
              (alu_sel==4'b0001) ? op1-op2 : 

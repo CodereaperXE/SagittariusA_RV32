@@ -53,6 +53,10 @@ always@(posedge clk or posedge reset) begin
         //     else
         //         registers[i] <= 32'd0;
 
+        for(i=0;i<32;i++) //slli x2, x3, 3
+            if(i==3)
+                registers[i]<=32'd1;
+            else registers[i] <=32'd0;
                 
     end
     if(we && (a3 != 5'd0)) begin

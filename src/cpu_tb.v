@@ -159,7 +159,7 @@ module main;
                         7'b0010011: begin //I type immediate 
                             nstate=8'd19;
                             if(func3==3'b000) imm_src=4'b0000; //addi
-                            else if(func3==3'b001) imm_src=4'b0101; //slli
+                            else if(func3==3'b001 && func7==7'b0000000) imm_src=4'b0101;  //slli
                             else imm_src=4'b0000;
                         end
 
