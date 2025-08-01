@@ -5,10 +5,13 @@ module alu_module(
     input [31:0] op2,
     input [3:0] alu_sel,
     output [31:0] res,
-    output zero
+    output zero,
+    output negative
 );
 
 assign zero = ((op1-op2)==32'd0) ? 1 : 0;
+assign negative = (op1-op2) [31]; 
+
 reg sign=0;
 
 assign res = (alu_sel==4'b0000) ? op1+op2 :
