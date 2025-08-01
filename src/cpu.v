@@ -27,7 +27,8 @@ module cpu_module(
     input wire mem_enable,
     input wire old_pc_enable,
     input wire mem_reg_enable,
-    input wire [1:0] instr_mode
+    input wire [1:0] instr_mode,
+    output wire negative
     );
 
 // wire pc_enable;
@@ -186,7 +187,8 @@ alu_module alu1(
     .op2(opsel2_mux_out),
     .alu_sel(alu_sel),
     .res(alu_out),
-    .zero(zero)
+    .zero(zero),
+    .negative(negative)
     );
 
 // wire alu_reg_enable;
