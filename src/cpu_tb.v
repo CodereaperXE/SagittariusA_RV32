@@ -26,6 +26,7 @@ module main;
     reg old_pc_enable=0;
     reg mem_reg_enable=0;
     reg [1:0] instr_mode=0; 
+    wire negative;
 
     wire nclk;
     assign nclk = ~clk;
@@ -62,7 +63,8 @@ module main;
         .alu_sel(alu_sel),
         .old_pc_enable(old_pc_enable),
         .mem_reg_enable(mem_reg_enable),
-        .instr_mode(instr_mode)
+        .instr_mode(instr_mode),
+        .negative(negative)
         );
 
 
