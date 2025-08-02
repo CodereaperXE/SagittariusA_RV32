@@ -102,6 +102,17 @@ module main;
                      (opcode==7'b0010011 && func3==3'b101 && func7==7'b0100000) ? 4'b0101 : //srai
                      (opcode==7'b0010011 && func3==3'b110) ? 4'b0111 : //ori
                      (opcode==7'b0010011 && func3==3'b111) ? 4'b1000 : //andi
+
+                     (opcode==7'b0110011 && func3==3'b000 && func7==7'b0000000) ? 4'b0000 : //add
+                     (opcode==7'b0110011 && func3==3'b000 && func7==7'b0100000) ? 4'b0001 : //sub
+                     (opcode==7'b0110011 && func3==3'b001 && func7==7'b0000000) ? 4'b0011 : //sll
+                     (opcode==7'b0110011 && func3==3'b010 && func7==7'b0000000) ? 4'b1001 : //slt
+                     (opcode==7'b0110011 && func3==3'b011 && func7==7'b0000000) ? 4'b1010 : //sltu
+                     (opcode==7'b0110011 && func3==3'b100 && func7==7'b0000000) ? 4'b0110 : //xor
+                     (opcode==7'b0110011 && func3==3'b101 && func7==7'b0000000) ? 4'b0100 : //srl
+                     (opcode==7'b0110011 && func3==3'b101 && func7==7'b0100000) ? 4'b0101 : //sra
+                     (opcode==7'b0110011 && func3==3'b110 && func7==7'b0000000) ? 4'b0111 : //or
+                     (opcode==7'b0110011 && func3==3'b111 && func7==7'b0000000) ? 4'b1000 : //and
                      4'b0000;
 
     reg [7:0] state=8'd0;
@@ -150,6 +161,8 @@ module main;
                         end
                         7'b0110011: begin //R type instruction
                             nstate=8'd18;
+                            // if(func3==3'b000 && func7==7'b0000000) imm_src=4'b0000; //add
+                            // else if(func3==3'b000 && func7==7'b0100000) imm_src=4'b0000; //sub
                         end
                         7'b0010011: begin //I type immediate 
                             nstate=8'd19;

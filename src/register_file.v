@@ -69,13 +69,37 @@ always@(posedge clk or posedge reset) begin
         //         registers[i]<=32'd1427; //(0101 1001 0011)
         //     else registers[i] <=32'd0;
 
-        for(i=0;i<32;i++) //bltu x1, x2, 16 0020e863 | bge x1, x2, 16 0x0020d863
-        if(i==1)
-            registers[i]<=32'd14; 
-        else if(i==2)
-            registers[i]<=32'd13;
+        // for(i=0;i<32;i++) //bltu x1, x2, 16 0020e863 | bge x1, x2, 16 0x0020d863
+        // if(i==1)
+        //     registers[i]<=32'd14; 
+        // else if(i==2)
+        //     registers[i]<=32'd13;
         
-        else registers[i] <=32'd0;
+        // else registers[i] <=32'd0;
+
+
+        // for(i=0;i<32;i++) //sub x1, x2, x3 403100b3
+        //     if(i==2)
+        //         registers[i]<=32'd1000; 
+        //     else if(i==3)
+        //         registers[i]<=32'd2000;
+        //     else registers[i] <=32'd0;
+
+        for(i=0;i<32;i++) //slt x1, x2, x3 003120b3
+            if(i==2)
+                registers[i]<=32'd2000; 
+            else if(i==3)
+                registers[i]<=32'd2000;
+            else registers[i] <=32'd0;
+
+        
+        for(i=0;i<32;i++) //sra x1, x2, x3 403150b3
+            if(i==2)
+                registers[i]<=32'h80000000; 
+            else if(i==3)
+                registers[i]<=32'd3;
+            else registers[i] <=32'd0;
+
     end
     if(we && (a3 != 5'd0)) begin
         registers[a3] <= wd3;
