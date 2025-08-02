@@ -64,7 +64,8 @@ module main;
         .old_pc_enable(old_pc_enable),
         .mem_reg_enable(mem_reg_enable),
         .instr_mode(instr_mode),
-        .negative(negative)
+        .negative(negative),
+        .unegative(unegative)
         );
 
 
@@ -79,19 +80,6 @@ module main;
         reset=1;
         #1
         reset=0;
-        // counter=0;
-        // #1
-        // pc_enable=0;
-        // memsel_mux_select=0;
-        // mem_enable=1;
-        // #8
-        // mem_enable=0;
-        // state=0;
-        // nstate=0;
-        // #70
-        // ir_reg_enable=1;
-        // #20
-        // ir_reg_enable=0;
     end
 
 
@@ -220,14 +208,6 @@ module main;
                     nstate=8'd0;
 
                 end
-
-            //store type instruction
-            // 8'd7: nstate=8'd8;
-            // 8'd8:  begin
-            //         if(mem_op_r==1) //wait for memory complete
-            //             nstate=8'd0;
-            //     end
-            // 8'd8: nstate=8'd9;
             8'd8:
                 begin
                     case(func3)
@@ -269,24 +249,6 @@ module main;
             8'd18: nstate=8'd0;
             //I type instructions
             8'd19: nstate=8'd0;
-
-            //branch type instruction
-            // 8'd9: nstate=8'd10;
-            // 8'd10: nstate=8'd0;
-            // //jump type instruction
-            // 8'd11: nstate=8'd12;
-            // 8'd12: nstate=8'd0;
-            // //jalr immediate type instruction
-            // 8'd13: nstate=8'd14;
-            // 8'd14: nstate=8'd0;
-            // //U type lui instruction
-            // 8'd15: nstate=8'd0;
-            // //U type auipc instruction
-            // 8'd16: nstate=8'd0;
-            // //R type instruction
-            // 8'd17: nstate=8'd0;
-            // //I type instruction other than lw
-            // 8'd18: nstate=8'd0;
 
             default:nstate=8'd0;
         endcase
@@ -395,12 +357,33 @@ module main;
             8'd11:
                 begin
                     alu_reg_mux_select=1;
+
                     if(func3==3'b000 && zero) begin //beq
                         opsel1_select=2'b10;
                         opsel2_select=2'b00;
                         pc_enable=1;
                     end
                     else if(func3==3'b010 && !zero) begin //bne
+                        opsel1_select=2'b10;
+                        opsel2_select=2'b00;
+                        pc_enable=1;
+                    end
+                    else if(func3==3'b100 && negative) begin //blt
+                        opsel1_select=2'b10;
+                        opsel2_select=2'b00;
+                        pc_enable=1;
+                    end
+                    else if(func3==3'b101 && (!negative || zero)) begin //bge
+                        opsel1_select=2'b10;
+                        opsel2_select=2'b00;
+                        pc_enable=1;
+                    end
+                    else if(func3==3'b110 && unegative) begin //btlu
+                        opsel1_select=2'b10;
+                        opsel2_select=2'b00;
+                        pc_enable=1;
+                    end
+                    else if(func3==3'b111 && (!unegative || zero)) begin //bgeu
                         opsel1_select=2'b10;
                         opsel2_select=2'b00;
                         pc_enable=1;
@@ -488,180 +471,12 @@ module main;
                     rf_we=1;
                 end
             // end of I type instructions
-            
-
-            //new instructions
-            // 8'd4: 
-            //     begin
-            //         opsel1_select=2'b00;
-            //         opsel2_select=2'b00;
-
-            //         alu_reg_mux_select=1;
-            //         memsel_mux_select=1;
-            //         mem_enable=1;
-            //         regfile_mux_select=2'b00;
-            //         rf_we=1;
-            //     end
-            // 8'd5: 
-            //         mem_enable=0;
-            // 8'd6: 
-            //     begin
-            //         alu_reg_mux_select=0;
-            //         memsel_mux_select=0;
-            //         rf_we=0;
-            //     end
-            // //end of load type instruction
-
-            // //store type instruction
-            // 8'd7:
-            //     begin
-            //         opsel1_select=2'b00;
-            //         opsel2_select=2'b00;
-
-            //         alu_reg_mux_select=1;
-            //         memsel_mux_select=1;
-            //         mem_write_enable=1;
-            //         mem_enable=1;
-            //     end
-            // 8'd8:
-            //     begin
-            //         mem_enable=0;
-            //     end
-            // //end of store type instruction
-
-            // //branch type instruction
-            // 8'd9:
-            //     begin
-            //         opsel1_select=2'b00;
-            //         opsel2_select=2'b10;
-            //         pc_enable=0;
-            //     end
-            // 8'd10:
-            //     begin
-            //         alu_reg_mux_select=1;
-            //         if(func3==3'b000 && zero) begin //beq
-            //             opsel1_select=2'b10;
-            //             opsel2_select=2'b00;
-            //             pc_enable=1;
-            //         end
-            //         else if(func3==3'b010 && !zero) begin //bne
-            //             opsel1_select=2'b10;
-            //             opsel2_select=2'b00;
-            //             pc_enable=1;
-            //         end
-            //         else begin
-            //             pc_enable=0;
-            //         end
-            //     end
-            // //end of branch type instruction
-            
-            // //jump type instruction
-            // 8'd11:
-            //     begin
-            //         regfile_mux_select=1;
-            //         opsel1_select=2'b10;
-            //         opsel2_select=2'b01;
-            //         alu_reg_mux_select=1; //better to remove the register itself not serving any purpose
-            //         rf_we=1;
-            //     end
-            // 8'd12:
-            //     begin
-            //         opsel1_select=2'b10;
-            //         opsel2_select=2'b00;
-            //         alu_reg_mux_select=1;
-            //         rf_we=0;
-            //         pc_enable=1;
-            //     end
-            // //end of jump type instruction
-
-            // //jalr instruction
-            // 8'd13:
-            //     begin
-            //         opsel1_select=2'b10;
-            //         opsel2_select=2'b01;
-            //         rf_we=1;
-            //         regfile_mux_select=1;
-            //         alu_reg_mux_select=1;
-            //     end
-            // 8'd14:
-            //     begin
-            //         rf_we=0;
-
-            //         opsel1_select=2'b00;
-            //         opsel2_select=2'b00;
-            //         pc_enable=1;
-            //     end
-            // //end of jalr instruction
-
-            // //U type lui instruction
-            // 8'd15:
-            //     begin
-            //         alu_reg_mux_select=1;
-            //         opsel2_select=2'b00;
-            //         rf_we=1;
-            //     end
-            // //end of U type lui instruction
-            // //U type auipc instruction
-            // 8'd16:
-            //     begin
-            //         alu_reg_mux_select=1;
-            //         opsel1_select=2'b10;
-            //         opsel2_select=2'b00;
-            //         pc_enable=1;
-            //     end
-            // //end of U type auipc instruction
-
-            // //R type instruction
-            // 8'd17:
-            //     begin
-            //         alu_reg_mux_select=1;
-            //         opsel1_select=2'b00;
-            //         opsel2_select=2'b10;
-            //         regfile_mux_select=1;
-            //         rf_we=1;
-            //     end
-            // //end of R type instruction
-            
-
-            // //I type instruction other than load type
-            // 8'd18:
-            //     begin
-            //         alu_reg_mux_select=1;
-            //         opsel1_select=2'b00;
-            //         opsel2_select=2'b00;
-            //         regfile_mux_select=1;
-            //         rf_we=1;
-            //     end
-            //end of I type instructions
             default:
                 ;
         endcase
     end
 
-
-    // always@(posedge nclk) begin
-    //     counter <= counter+1;
-    //     if(counter == 7'd3) begin // load from memory to ir
-    //         ir_reg_enable=1;
-    //     end
-    //     if(counter == 7'd4) begin // select immsrc 
-    //         ir_reg_enable=0;
-    //         imm_src= 2'b00;
-
-    //     end
-    //     if(counter == 7'd5) begin //load from rf to rf_reg
-    //         ir_reg_enable=0;
-    //     end
-
-    //     if(counter==7'd6) begin // load only alu reg
-    //         alu_reg_enable = 1;
-    //     end
-    //     if(counter==7'd7) begin
-    //         alu_reg_enable=0;
-    //     end
-    // end
-
-
+//testbench code
 
     initial begin
         $dumpfile("cpu_tb.vcd");
