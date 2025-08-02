@@ -23,14 +23,14 @@ integer i;
 always@(posedge clk or posedge reset) begin
     if(reset) begin
 
-        for(i=0;i<32;i++) //testbench //sw
-            if(i==2)
-                registers[i] <= 32'h00008000;
-            else if(i==3)
-                // registers[i] <= 32'haabbccdd;
-                registers[i] <= 32'h00008000;
-            else
-                registers[i] <= 32'd0;
+        // for(i=0;i<32;i++) //testbench //sw
+            // if(i==2)
+            //     registers[i] <= 32'h00008000;
+            // else if(i==3)
+            //     // registers[i] <= 32'haabbccdd;
+            //     registers[i] <= 32'h00008000;
+            // else
+            //     registers[i] <= 32'd0;
 
         // for(i=0;i<32;i++) //testbench beq
         //     if(i==4)
@@ -53,11 +53,23 @@ always@(posedge clk or posedge reset) begin
         //     else
         //         registers[i] <= 32'd0;
 
-        for(i=0;i<32;i++) //slli x2, x3, 3
-            if(i==3)
-                registers[i]<=32'd1;
-            else registers[i] <=32'd0;
-                
+        // for(i=0;i<32;i++) //slli x2, x3, 3
+        //     if(i==3)
+        //         registers[i]<=32'd1;
+        //     else registers[i] <=32'd0;
+
+        // for(i=0;i<32;i++) //slti x1, x3, 2 
+        //     if(i==3)
+        //         registers[i]<=32'd5;
+        //     else registers[i] <=32'd0;
+        
+
+        // for(i=0;i<32;i++) //ori x1, x3, -1524 (1010 0000 1100) 2572
+        //     if(i==3)
+        //         registers[i]<=32'd1427; //(0101 1001 0011)
+        //     else registers[i] <=32'd0;
+
+        
     end
     if(we && (a3 != 5'd0)) begin
         registers[a3] <= wd3;

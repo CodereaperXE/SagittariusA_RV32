@@ -23,6 +23,7 @@ assign res = (alu_sel==4'b0000) ? op1+op2 :
              (alu_sel==4'b0111) ? op1 | op2 : //or
              (alu_sel==4'b1000) ? op1 & op2 : //and
              (alu_sel==4'b1001) ? ($signed(op1) < $signed(op2)) ? 1 : 0 : //slti
+             (alu_sel==4'b1010) ? ((op1 < op2) ? 1 : 0): //sltiu
              32'd0;
 endmodule
 

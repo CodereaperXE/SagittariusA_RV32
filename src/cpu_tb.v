@@ -107,6 +107,13 @@ module main;
 
                      (opcode==7'b0010011 && func3==3'b000) ? 4'b0000 : //addi
                      (opcode==7'b0010011 && func3==3'b001 && func7==7'b0000000) ? 4'b0011 : //slli
+                     (opcode==7'b0010011 && func3==3'b010) ? 4'b1001 : //slti
+                     (opcode==7'b0010011 && func3==3'b011) ? 4'b1010 : //sltiu
+                     (opcode==7'b0010011 && func3==3'b100) ? 4'b0110 : //xori
+                     (opcode==7'b0010011 && func3==3'b101 && func7==7'b0000000) ? 4'b0100 : //srli
+                     (opcode==7'b0010011 && func3==3'b101 && func7==7'b0100000) ? 4'b0101 : //srai
+                     (opcode==7'b0010011 && func3==3'b110) ? 4'b0111 : //ori
+                     (opcode==7'b0010011 && func3==3'b111) ? 4'b1000 : //andi
                      4'b0000;
 
     reg [7:0] state=8'd0;
@@ -160,6 +167,13 @@ module main;
                             nstate=8'd19;
                             if(func3==3'b000) imm_src=4'b0000; //addi
                             else if(func3==3'b001 && func7==7'b0000000) imm_src=4'b0101;  //slli
+                            else if(func3==3'b010) imm_src=4'b0000; //slti
+                            else if(func3==3'b011) imm_src=4'b0100; //sltiu
+                            else if(func3==3'b100) imm_src=4'b0000; //xori
+                            else if(func3==3'b101 && func7==7'b0000000) imm_src=4'b0100; //srli
+                            else if(func3==3'b101 && func7==7'b0100000) imm_src=4'b0100; //srai
+                            else if(func3==3'b110) imm_src=4'b0000; //ori
+                            else if(func3==3'b111) imm_src=4'b0000; //andi
                             else imm_src=4'b0000;
                         end
 
