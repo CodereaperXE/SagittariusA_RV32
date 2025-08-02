@@ -6,12 +6,13 @@ module alu_module(
     input [3:0] alu_sel,
     output [31:0] res,
     output zero,
-    output negative
+    output negative,
+    output unegative
 );
 
 assign zero = ((op1-op2)==32'd0) ? 1 : 0;
 assign negative = ((op1 - op2) & 32'h80000000) ? 1 : 0;
-
+assign unegative = (op1 < op2) ? 1 : 0; //used for bltu and bgeu
 
 assign res = (alu_sel==4'b0000) ? op1+op2 :
              (alu_sel==4'b0001) ? op1-op2 : 
