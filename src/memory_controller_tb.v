@@ -255,7 +255,11 @@ initial begin
     // mem[24'h02]=8'hc1;
     // mem[24'h03]=8'ha0;
 
-
+    //bltu x1, x2, 16 0020e863
+    mem[24'h00]=8'h63;
+    mem[24'h01]=8'he8;
+    mem[24'h02]=8'h20;
+    mem[24'h03]=8'h00;
 end
 
 
