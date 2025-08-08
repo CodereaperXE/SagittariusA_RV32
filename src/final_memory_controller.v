@@ -1,4 +1,7 @@
 //8/8/2025
+
+`timescale 1 ns / 10 ps
+
 module memory_controller_module(
     input [23:0] addr,              // address 
     input we,                       // write enable
@@ -17,10 +20,10 @@ module memory_controller_module(
     input flash_so,                 // serial output (from flash)
     output wire sram_si,            // serial input (from psram)
     output wire flash_si,           // serial input (from flash)
-    input reset,                    // reset
-    output [6:0] c,                 // internal counter (temporary)
-    output ledg,                    // output green led (temporary)
-    output ledr                     // output reg led   (temporary)
+    input reset                     // reset
+    // output [6:0] c,                 // internal counter (temporary)
+    // output ledg,                    // output green led (temporary)
+    // output ledr                     // output reg led   (temporary)
 );
 
 localparam IDLE = 1'b0, BUSY = 1'b1;
@@ -114,14 +117,14 @@ assign sram_si = (memory_mode==sram_mode) ? (
 
 
 always@(posedge clk or posedge reset) begin
-    if(reset) begin
+    if(reset || !enable) begin
         sck<=1;
         sram_ce=0;
         flash_ce=1;
         counter<=0;
         state<=IDLE;
     end
-    else begin
+    else if(enable) begin
         //sclk logic
         if(state==BUSY)
             if(sram_ce || ~flash_ce) sck <= ~sck;
@@ -197,9 +200,6 @@ always@(posedge clk or posedge reset) begin
                 end
             end
         end
-
-
-
     end
 end
 
@@ -214,5 +214,68 @@ assign op_r = (memory_mode==sram_mode) ?
 
 endmodule
 
+
+module main;
+        reg [23:0] addr=24'hf0f0f0;             
+        reg we=1;                       
+        reg clk=0;                      
+        reg [31:0] data_in=32'habababab;           
+        wire [31:0] data_out;    
+        wire op_r;               
+        reg enable=1;                   
+        reg [1:0] instr_mode=2'b00;         
+        //extra fpga inputs
+
+        wire sram_ce;             
+        wire flash_ce;            
+        wire sck;                 
+        wire sram_so;                  
+        wire flash_so;                 
+        wire sram_si;            
+        wire flash_si;           
+        reg reset=0;
+
+    memory_controller_module uut(
+
+        .addr(addr),             
+        .we(we),                       
+        .clk(clk),                      
+        .data_in(data_in),           
+        .data_out(data_out),    
+        .op_r(op_r),               
+        .enable(enable),                   
+        .instr_mode(instr_mode),         
+
+        .sram_ce(sram_ce),             
+        .flash_ce(flash_ce),            
+        .sck(sck),                 
+        .sram_so(sram_so),                  
+        .flash_so(flash_so),                 
+        .sram_si(sram_si),            
+        .flash_si(flash_si),           
+        .reset(reset)
+        );
+
+    always begin
+        #10
+        clk = ~clk;
+    end
+
+    initial begin
+        reset=1;
+        #1
+        reset=0;
+    end
+
+    initial begin
+        $dumpfile("final_memory_controller.vcd");
+        $dumpvars(0,main);
+
+        #5000
+        $finish();
+    end
+
+
+endmodule
 
 
