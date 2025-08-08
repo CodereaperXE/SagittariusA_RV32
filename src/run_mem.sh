@@ -1,0 +1,3 @@
+iverilog -o final_memory_controller final_memory_controller.v
+./final_memory_controller
+gtkwave final_memory_controller.vcd
