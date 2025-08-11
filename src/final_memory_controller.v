@@ -11,6 +11,12 @@ module memory_controller_module(
     output wire op_r,               // output data ready
     input enable,                   // start the r/w
     input [1:0] instr_mode,         //instruction mode
+
+    //base address and offset registers
+    input [23:0] flash_base_reg,
+    input [23:0] boot_sector_offset,
+    input [23:0] peripheral_base_offset,
+    input [23:0] sram_base_offset,
     //extra fpga inputs
 
     output reg sram_ce,             // chip enable
@@ -32,10 +38,12 @@ reg [6:0] counter = 7'd0;
 reg [7:0] cmd = 8'd0;
 reg [31:0] data = 32'd0;
 reg [31:0] le_data = 32'd0;
+reg [1:0] memory_mode=0;
+
 localparam read_cmd= 8'h03, write_cmd = 8'h02;
 localparam sram_mode=2'b00, nor_fash_mode=2'b01, perpheral_mode=2'b10;
 localparam word_mode=2'b00, byte_mode=2'b01, half_mode=2'b10;
-reg [1:0] memory_mode=0;
+
 
 //little endian converted and vice versa
 always@(*) begin
@@ -60,12 +68,19 @@ always@(*) begin
 
 end
 
+//selection of memory mode
+always@(*) begin
+    if(addr > sram_base_offset) memory_mode=sram_mode;
+    else if(addr >= peripheral_base_offset) memory_mode=perpheral_mode;
+    else if(addr >= boot_sector_offset) memory_mode=nor_fash_mode;
+end
+
 //output data
 assign data_out = (instr_mode==2'b00) ? ({data[7:0],data[15:8],data[23:16],data[31:24]}) : //word mode
                   (instr_mode==2'b01) ? ({24'b0,data[7:0]}): //byte mode
                   (instr_mode==2'b10) ? ({16'b0,data[7:0],data[15:8]}) : 32'd0; //half mode
 
-//writing
+//writing or reading
 //sram si
 assign sram_si = (memory_mode==sram_mode) ? (
 
@@ -93,25 +108,33 @@ assign sram_si = (memory_mode==sram_mode) ? (
                 ) : 1'b0;
 
 //flash si (no writing into flash)
-// assign flash_si = (memory_mode==nor_fash_mode) ? (
 
-//                     (counter < 8) ? cmd[7-counter] : //cmd
+wire [23:0] flash_addr_wire;
+assign flash_addr_wire = (addr+flash_base_reg);
+assign flash_si = (memory_mode==nor_fash_mode) ? (
 
-//                     (counter < 32) ? addr[31-counter] : //addr
+                    (counter < 8) ? cmd[7-counter] : //cmd
 
-//                     (   //data
-//                         (instr_mode==f) ?
-//                         (
-//                             (counter < 64 && we) ? data_in[63-counter]
-//                         ) 
-//                         : 1'b0
+                    (counter < 32) ? flash_addr_wire[31-counter] : //addr
+                    1'b0
+                    // (
+                    //     (instr_mode==word_mode) ?
+                    //     (
+                    //         (counter < 64 && we) ? le_data[63-counter] : 1'b0
+                    //     ) :
+                    //     (instr_mode==byte_mode) ?
+                    //     (
+                    //         (counter < 56 && we) ? le_data[56-counter] : 1'b0
+                    //     ) :
+                    //     (instr_mode==half_mode) ?
+                    //     (
+                    //         (counter < 48 && we) ? le_data[48-counter] : 1'b0
+                    //     ) : 1'b0
 
+                        
+                    // )
 
-
-//                     ) : 
-//                     1'b0
-
-//                 ) : 1'b0;
+                ) : 1'b0;
 
 
 
@@ -151,7 +174,7 @@ always@(posedge clk or posedge reset) begin
             if(instr_mode==word_mode) begin
                 if(counter>=7'd63) begin
                     if(memory_mode==sram_mode) sram_ce <= 0;
-                    if(memory_mode==flash_ce) sram_ce <= 1;
+                    if(memory_mode==nor_fash_mode) sram_ce <= 1;
                     counter <= 0;
                     state <= IDLE;
                 end
@@ -160,7 +183,7 @@ always@(posedge clk or posedge reset) begin
             if(instr_mode==byte_mode) begin
                 if(counter>=7'd47) begin
                     if(memory_mode==sram_mode) sram_ce <= 0;
-                    if(memory_mode==flash_ce) sram_ce <= 1;
+                    if(memory_mode==nor_fash_mode) sram_ce <= 1;
                     counter <= 0;
                     state <= IDLE;
                 end
@@ -169,7 +192,7 @@ always@(posedge clk or posedge reset) begin
             if(instr_mode==half_mode) begin
                 if(counter>=7'd55) begin
                     if(memory_mode==sram_mode) sram_ce <= 0;
-                    if(memory_mode==flash_ce) sram_ce <= 1;
+                    if(memory_mode==nor_fash_mode) sram_ce <= 1;
                     counter <= 0;
                     state <= IDLE;
                 end
@@ -216,7 +239,7 @@ endmodule
 
 
 module main;
-        reg [23:0] addr=24'hf0f0f0;             
+        reg [23:0] addr=24'h0000aa;             
         reg we=1;                       
         reg clk=0;                      
         reg [31:0] data_in=32'habababab;           
@@ -235,6 +258,11 @@ module main;
         wire flash_si;           
         reg reset=0;
 
+        reg [23:0] flash_base_reg=24'h800000;
+        reg [23:0] boot_sector_offset=24'd0;
+        reg [23:0] peripheral_base_offset=24'd512;
+        reg [23:0] sram_base_offset=24'd768;
+
     memory_controller_module uut(
 
         .addr(addr),             
@@ -245,7 +273,6 @@ module main;
         .op_r(op_r),               
         .enable(enable),                   
         .instr_mode(instr_mode),         
-
         .sram_ce(sram_ce),             
         .flash_ce(flash_ce),            
         .sck(sck),                 
@@ -253,7 +280,11 @@ module main;
         .flash_so(flash_so),                 
         .sram_si(sram_si),            
         .flash_si(flash_si),           
-        .reset(reset)
+        .reset(reset),
+        .flash_base_reg(flash_base_reg),
+        .boot_sector_offset(boot_sector_offset),
+        .peripheral_base_offset(peripheral_base_offset),
+        .sram_base_offset(sram_base_offset)
         );
 
     always begin
