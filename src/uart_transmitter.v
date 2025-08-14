@@ -30,7 +30,7 @@ module uart_tx #(
     end
 
     // TX logic
-    always @(posedge clk) begin
+    always @(posedge clk or posedge reset) begin
         if (start && !flag) begin
         	flag<=1;
         	start_reg<=1;
@@ -55,42 +55,42 @@ module uart_tx #(
 endmodule
 
 
-module main(
-    input  CLK,       // 12 MHz clock
-    output UART_TX,   // UART TX pin
-    input  ICE_SW2    // pushbutton for start
-);
-    reg [7:0] data = "B"; // ASCII 'B'
+// module main(
+//     input  CLK,       // 12 MHz clock
+//     output UART_TX,   // UART TX pin
+//     input  ICE_SW2    // pushbutton for start
+// );
+//     reg [7:0] data = "B"; // ASCII 'B'
 
-    wire busy;
-    reg start = 0;
+//     wire busy;
+//     reg start = 0;
 
-    wire button = ~ICE_SW2; 
+//     wire button = ~ICE_SW2; 
 
-    // Instantiate UART
-    uart_tx uart_inst (
-        .uart_tx(UART_TX),
-        .clk(CLK),
-        .reset(1'b0), // no global reset for now
-        .data(data),
-        .start(start),
-        .busy(busy)
-    );
+//     // Instantiate UART
+//     uart_tx uart_inst (
+//         .uart_tx(UART_TX),
+//         .clk(CLK),
+//         .reset(1'b0), // no global reset for now
+//         .data(data),
+//         .start(start),
+//         .busy(busy)
+//     );
 
-    // Button edge detection for start pulse
-    // always @(posedge CLK) begin
-    //     if (button && !busy && !flag) begin
-    //         start <= 1;
-    //         flag  <= 1;
-    //     end else begin
-    //         start <= 0; // keep start only 1 cycle
-    //         if (!button) flag <= 0; // reset flag when button released
-    //     end
-    // end
+//     // Button edge detection for start pulse
+//     // always @(posedge CLK) begin
+//     //     if (button && !busy && !flag) begin
+//     //         start <= 1;
+//     //         flag  <= 1;
+//     //     end else begin
+//     //         start <= 0; // keep start only 1 cycle
+//     //         if (!button) flag <= 0; // reset flag when button released
+//     //     end
+//     // end
 
-    always@(CLK) begin
-    	if(button) start<=1;
-    	if(!button) start<=0;
-    end
+//     always@(CLK) begin
+//     	if(button) start<=1;
+//     	if(!button) start<=0;
+//     end
 
-endmodule
+// endmodule
