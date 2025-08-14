@@ -1,6 +1,7 @@
 //8/8/2025
 
 `timescale 1 ns / 10 ps
+`include "uart_transmitter.v"
 
 module memory_controller_module(
     input [23:0] addr,              // address 
@@ -40,8 +41,31 @@ reg [31:0] data = 32'd0;
 reg [31:0] le_data = 32'd0;
 reg [1:0] memory_mode=0;
 
+
+//uart config
+wire uart_tx; //temp
+wire [7:0] uart_data;
+wire uart_start;
+wire uart_busy;
+reg [23:0] uart_addr=24'd0;
+
+//uart register address
+always@(*) begin
+    uart_addr = peripheral_base_offset; //start of peripheral base offset is uart
+end
+
+uart_tx utx(
+        .uart_tx(uart_tx),
+        .clk(clk),
+        .reset(reset),
+        .data(uart_data),
+        .start(uart_start),
+        .busy(uart_busy)
+        );
+
+
 localparam read_cmd= 8'h03, write_cmd = 8'h02;
-localparam sram_mode=2'b00, nor_fash_mode=2'b01, perpheral_mode=2'b10;
+localparam sram_mode=2'b00, flash_mode=2'b01, peripheral_mode=2'b10;
 localparam word_mode=2'b00, byte_mode=2'b01, half_mode=2'b10;
 
 
@@ -71,8 +95,8 @@ end
 //selection of memory mode
 always@(*) begin
     if(addr > sram_base_offset) memory_mode=sram_mode;
-    else if(addr >= peripheral_base_offset) memory_mode=perpheral_mode;
-    else if(addr >= boot_sector_offset) memory_mode=nor_fash_mode;
+    else if(addr >= peripheral_base_offset) memory_mode=peripheral_mode;
+    else if(addr >= boot_sector_offset) memory_mode=flash_mode;
 end
 
 //output data
@@ -111,7 +135,7 @@ assign sram_si = (memory_mode==sram_mode) ? (
 
 wire [23:0] flash_addr_wire;
 assign flash_addr_wire = (addr+flash_base_reg);
-assign flash_si = (memory_mode==nor_fash_mode) ? (
+assign flash_si = (memory_mode==flash_mode) ? (
 
                     (counter < 8) ? cmd[7-counter] : //cmd
 
@@ -136,8 +160,18 @@ assign flash_si = (memory_mode==nor_fash_mode) ? (
 
                 ) : 1'b0;
 
+//uart data 
+// always@(*) begin
+//     if(instr_mode==peripheral_mode) begin
+//         if(addr >= uart_addr && addr <= uart_addr+4) begin
+//             uart_data = data_in[7:0];
+//             uart_start = data_in[8];
+//         end
+//     end
+// end
 
-
+assign uart_data = (memory_mode==peripheral_mode && (addr >= uart_addr && addr <= uart_addr+4)) ? data_in[7:0] : 0;
+assign uart_start = (memory_mode==peripheral_mode && (addr >= uart_addr && addr <= uart_addr+4)) ? data_in[8] : 0;
 
 always@(posedge clk or posedge reset) begin
     if(reset || !enable) begin
@@ -157,8 +191,8 @@ always@(posedge clk or posedge reset) begin
 
         if(state==IDLE) begin
             cmd <= (memory_mode==sram_mode) ? ((we) ? write_cmd : read_cmd) : //since both are same for flash and sram
-                   (memory_mode==nor_fash_mode) ? ((we) ? write_cmd : read_cmd) :
-                   (memory_mode==perpheral_mode) ? ((we) ? 8'b0 : 8'b0) : 8'd0; 
+                   (memory_mode==flash_mode) ? ((we) ? write_cmd : read_cmd) :
+                   (memory_mode==peripheral_mode) ? ((we) ? 8'b0 : 8'b0) : 8'd0; 
 
             if(memory_mode==sram_mode) sram_ce <= 1;
             if(memory_mode==flash_ce) flash_ce <= 0;
@@ -170,11 +204,11 @@ always@(posedge clk or posedge reset) begin
 
         //counter control
 
-        if((sram_ce && sck==1) || (flash_ce && sck==1)) begin
+        if((sram_ce && sck==1) || (flash_ce && sck==1) || memory_mode!=peripheral_mode) begin
             if(instr_mode==word_mode) begin
                 if(counter>=7'd63) begin
                     if(memory_mode==sram_mode) sram_ce <= 0;
-                    if(memory_mode==nor_fash_mode) sram_ce <= 1;
+                    if(memory_mode==flash_mode) sram_ce <= 1;
                     counter <= 0;
                     state <= IDLE;
                 end
@@ -183,16 +217,18 @@ always@(posedge clk or posedge reset) begin
             if(instr_mode==byte_mode) begin
                 if(counter>=7'd47) begin
                     if(memory_mode==sram_mode) sram_ce <= 0;
-                    if(memory_mode==nor_fash_mode) sram_ce <= 1;
+                    if(memory_mode==flash_mode) sram_ce <= 1;
                     counter <= 0;
                     state <= IDLE;
                 end
                 else counter <= counter + 1;
+
+                
             end
             if(instr_mode==half_mode) begin
                 if(counter>=7'd55) begin
                     if(memory_mode==sram_mode) sram_ce <= 0;
-                    if(memory_mode==nor_fash_mode) sram_ce <= 1;
+                    if(memory_mode==flash_mode) sram_ce <= 1;
                     counter <= 0;
                     state <= IDLE;
                 end
@@ -201,37 +237,49 @@ always@(posedge clk or posedge reset) begin
 
         end 
 
+        //counter control for peripherals
+        if(memory_mode==peripheral_mode) begin //for uart counter control
+            if(addr==uart_addr) begin
+                if(counter>=7'd10) begin
+                    counter <= 0;
+                    state <= IDLE;
+                end
+                else counter <= counter + 1;
+            end
+        end
+
         //input control
 
         if(sck==0) begin
             if(instr_mode==word_mode) begin
                 if(counter > 7'd31 && counter < 7'd64 && !we) begin
                     data[63-counter] <= (memory_mode==sram_mode) ? sram_so :
-                                        (memory_mode==nor_fash_mode) ? flash_so : 1'b0;
+                                        (memory_mode==flash_mode) ? flash_so : 1'b0;
                 end
             end
             if(instr_mode==byte_mode) begin
                 if(counter > 7'd31 && counter < 7'd48 && !we) begin
                     data[47-counter] <= (memory_mode==sram_mode) ? sram_so :
-                                        (memory_mode==nor_fash_mode) ? flash_so : 1'b0;
+                                        (memory_mode==flash_mode) ? flash_so : 1'b0;
                 end
             end
             if(instr_mode==half_mode) begin
                 if(counter > 7'd31 && counter < 7'd56 && !we) begin
                     data[55-counter] <= (memory_mode==sram_mode) ? sram_so :
-                                        (memory_mode==nor_fash_mode) ? flash_so : 1'b0;
+                                        (memory_mode==flash_mode) ? flash_so : 1'b0;
                 end
             end
         end
     end
 end
 
+//output ready
 assign op_r = (memory_mode==sram_mode) ? 
                     ((counter == 7'd63 && sck == 1) ? 1'b1 : 1'b0) : 
-              (memory_mode==nor_fash_mode) ? 
+              (memory_mode==flash_mode) ? 
                     ((counter == 7'd63 && sck == 1) ? 1'b1 : 1'b0) :
-              (memory_mode==perpheral_mode) ? 
-                    (1'b0) :
+              (memory_mode==peripheral_mode) ? 
+                    ((addr == uart_addr && !uart_busy && counter > 7'd1) ? 1'b1 : 1'b0) : //uart tx complete
               1'b0;
 
 
@@ -239,10 +287,10 @@ endmodule
 
 
 module main;
-        reg [23:0] addr=24'h0000aa;             
+        reg [23:0] addr=24'h000200;             
         reg we=1;                       
         reg clk=0;                      
-        reg [31:0] data_in=32'habababab;           
+        reg [31:0] data_in=32'h000001aa;           
         wire [31:0] data_out;    
         wire op_r;               
         reg enable=1;                   
@@ -302,7 +350,7 @@ module main;
         $dumpfile("final_memory_controller.vcd");
         $dumpvars(0,main);
 
-        #5000
+        #100000
         $finish();
     end
 
