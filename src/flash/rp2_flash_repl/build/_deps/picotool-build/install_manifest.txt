@@ -1,0 +1,7 @@
+/home/rishab/projects/SagittariusA_RV32/src/flash/rp2_flash_repl/build/_deps/picotool/picotool
+/home/rishab/projects/SagittariusA_RV32/src/flash/rp2_flash_repl/build/_deps/picotool/picotoolTargets.cmake
+/home/rishab/projects/SagittariusA_RV32/src/flash/rp2_flash_repl/build/_deps/picotool/picotoolTargets-release.cmake
+/home/rishab/projects/SagittariusA_RV32/src/flash/rp2_flash_repl/build/_deps/picotool/picotoolConfig.cmake
+/home/rishab/projects/SagittariusA_RV32/src/flash/rp2_flash_repl/build/_deps/picotool/picotoolConfigVersion.cmake
+/home/rishab/projects/SagittariusA_RV32/src/flash/rp2_flash_repl/build/_deps/picotool/enc_bootloader.elf
+/home/rishab/projects/SagittariusA_RV32/src/flash/rp2_flash_repl/build/_deps/picotool/enc_bootloader_mbedtls.elf

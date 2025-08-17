@@ -1,0 +1,46 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "/home/rishab/projects/SagittariusA_RV32/src/flash/rp2_flash_repl/build/CMakeFiles/picotoolBuild"
+		},
+		{
+			"file" : "/home/rishab/projects/SagittariusA_RV32/src/flash/rp2_flash_repl/build/CMakeFiles/picotoolBuild.rule"
+		},
+		{
+			"file" : "/home/rishab/projects/SagittariusA_RV32/src/flash/rp2_flash_repl/build/CMakeFiles/picotoolBuild-complete.rule"
+		},
+		{
+			"file" : "/home/rishab/projects/SagittariusA_RV32/src/flash/rp2_flash_repl/build/picotool/src/picotoolBuild-stamp/picotoolBuild-build.rule"
+		},
+		{
+			"file" : "/home/rishab/projects/SagittariusA_RV32/src/flash/rp2_flash_repl/build/picotool/src/picotoolBuild-stamp/picotoolBuild-configure.rule"
+		},
+		{
+			"file" : "/home/rishab/projects/SagittariusA_RV32/src/flash/rp2_flash_repl/build/picotool/src/picotoolBuild-stamp/picotoolBuild-download.rule"
+		},
+		{
+			"file" : "/home/rishab/projects/SagittariusA_RV32/src/flash/rp2_flash_repl/build/picotool/src/picotoolBuild-stamp/picotoolBuild-install.rule"
+		},
+		{
+			"file" : "/home/rishab/projects/SagittariusA_RV32/src/flash/rp2_flash_repl/build/picotool/src/picotoolBuild-stamp/picotoolBuild-mkdir.rule"
+		},
+		{
+			"file" : "/home/rishab/projects/SagittariusA_RV32/src/flash/rp2_flash_repl/build/picotool/src/picotoolBuild-stamp/picotoolBuild-patch.rule"
+		},
+		{
+			"file" : "/home/rishab/projects/SagittariusA_RV32/src/flash/rp2_flash_repl/build/picotool/src/picotoolBuild-stamp/picotoolBuild-test.rule"
+		},
+		{
+			"file" : "/home/rishab/projects/SagittariusA_RV32/src/flash/rp2_flash_repl/build/picotool/src/picotoolBuild-stamp/picotoolBuild-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"picotoolBuild"
+		],
+		"name" : "picotoolBuild"
+	}
+}

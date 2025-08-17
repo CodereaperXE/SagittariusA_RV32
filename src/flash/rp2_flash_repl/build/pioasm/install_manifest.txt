@@ -1,0 +1,5 @@
+/home/rishab/projects/SagittariusA_RV32/src/flash/rp2_flash_repl/build/pioasm-install/pioasm/pioasm
+/home/rishab/projects/SagittariusA_RV32/src/flash/rp2_flash_repl/build/pioasm-install/pioasm/pioasmTargets.cmake
+/home/rishab/projects/SagittariusA_RV32/src/flash/rp2_flash_repl/build/pioasm-install/pioasm/pioasmTargets-release.cmake
+/home/rishab/projects/SagittariusA_RV32/src/flash/rp2_flash_repl/build/pioasm-install/pioasm/pioasmConfig.cmake
+/home/rishab/projects/SagittariusA_RV32/src/flash/rp2_flash_repl/build/pioasm-install/pioasm/pioasmConfigVersion.cmake

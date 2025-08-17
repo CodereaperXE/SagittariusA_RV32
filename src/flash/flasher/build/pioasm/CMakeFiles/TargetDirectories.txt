@@ -1,0 +1,7 @@
+/home/rishab/projects/SagittariusA_RV32/src/flash/flasher/build/pioasm/CMakeFiles/pioasm.dir
+/home/rishab/projects/SagittariusA_RV32/src/flash/flasher/build/pioasm/CMakeFiles/edit_cache.dir
+/home/rishab/projects/SagittariusA_RV32/src/flash/flasher/build/pioasm/CMakeFiles/rebuild_cache.dir
+/home/rishab/projects/SagittariusA_RV32/src/flash/flasher/build/pioasm/CMakeFiles/list_install_components.dir
+/home/rishab/projects/SagittariusA_RV32/src/flash/flasher/build/pioasm/CMakeFiles/install.dir
+/home/rishab/projects/SagittariusA_RV32/src/flash/flasher/build/pioasm/CMakeFiles/install/local.dir
+/home/rishab/projects/SagittariusA_RV32/src/flash/flasher/build/pioasm/CMakeFiles/install/strip.dir

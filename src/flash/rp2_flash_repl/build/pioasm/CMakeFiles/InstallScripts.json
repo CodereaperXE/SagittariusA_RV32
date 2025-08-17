@@ -1,0 +1,7 @@
+{
+	"InstallScripts" : 
+	[
+		"/home/rishab/projects/SagittariusA_RV32/src/flash/rp2_flash_repl/build/pioasm/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

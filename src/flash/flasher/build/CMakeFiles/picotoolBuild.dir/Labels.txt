@@ -1,0 +1,14 @@
+# Target labels
+ picotoolBuild
+# Source files and their labels
+/home/rishab/projects/SagittariusA_RV32/src/flash/flasher/build/CMakeFiles/picotoolBuild
+/home/rishab/projects/SagittariusA_RV32/src/flash/flasher/build/CMakeFiles/picotoolBuild.rule
+/home/rishab/projects/SagittariusA_RV32/src/flash/flasher/build/CMakeFiles/picotoolBuild-complete.rule
+/home/rishab/projects/SagittariusA_RV32/src/flash/flasher/build/picotool/src/picotoolBuild-stamp/picotoolBuild-build.rule
+/home/rishab/projects/SagittariusA_RV32/src/flash/flasher/build/picotool/src/picotoolBuild-stamp/picotoolBuild-configure.rule
+/home/rishab/projects/SagittariusA_RV32/src/flash/flasher/build/picotool/src/picotoolBuild-stamp/picotoolBuild-download.rule
+/home/rishab/projects/SagittariusA_RV32/src/flash/flasher/build/picotool/src/picotoolBuild-stamp/picotoolBuild-install.rule
+/home/rishab/projects/SagittariusA_RV32/src/flash/flasher/build/picotool/src/picotoolBuild-stamp/picotoolBuild-mkdir.rule
+/home/rishab/projects/SagittariusA_RV32/src/flash/flasher/build/picotool/src/picotoolBuild-stamp/picotoolBuild-patch.rule
+/home/rishab/projects/SagittariusA_RV32/src/flash/flasher/build/picotool/src/picotoolBuild-stamp/picotoolBuild-test.rule
+/home/rishab/projects/SagittariusA_RV32/src/flash/flasher/build/picotool/src/picotoolBuild-stamp/picotoolBuild-update.rule
